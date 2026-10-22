@@ -3,6 +3,7 @@
     { "source": "/:name([^/.]+)", "destination": "/:name/", "permanent": false }
   ],
   "rewrites": [
-    { "source": "/:path+", "destination": "https://orrkislev.github.io/:path+" }
+    { "source": "/:path+/", "destination": "https://orrkislev.github.io/:path+/" },
+    { "source": "/:path+","destination": "https://orrkislev.github.io/:path+" }
   ]
 }
