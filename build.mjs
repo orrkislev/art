@@ -10,7 +10,7 @@ const SKETCHES = [
   ['3D Thingy', '3dthingy'], ['Round Plotter', 'round_plotter'], ['Mountains', 'mountains'], ['Territories', 'territories'],
   ['(FUR)niture', 'fur-niture'], ['Memphis', 'memphis'], ['Rocky', 'rocky'], ['Jenim', 'jenim'], ['Drinks', 'drinks'],
   ['Monolith', 'monolith'], ['Blobs', 'blobs'], ['Clint', 'clint'], ['Hairy Thing', 'hairy_thing'],
-  ['Marbloble', 'marbloble'], ['Plot Thing', 'plot_thing'], ['Thing', 'thing'],
+  ['Marbling', 'marbloble'], ['Plot Thing', 'plot_thing'], ['Thing', 'thing'],
 ];
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -36,7 +36,7 @@ ${body}
 const tile = (href, img, title, meta, w = 4, h = 3) =>
   `<a class="tile" href="${href}">${img ? `<img src="${img}" alt="" loading="lazy" width="${w}" height="${h}">` : ''}` +
   `<span class="label">${esc(title)}</span><span class="meta">${meta}</span></a>`;
-const projectTile = (p) => tile(`${p.slug}/`, p.images[0] && `${p.slug}/${p.images[0].f}`, p.title,
+const projectTile = (p) => tile(`${p.slug}/`, (p.cover || p.images[0]?.f) && `${p.slug}/${p.cover || p.images[0].f}`, p.title,
   `${esc(p.platform)} · ${year(p.date)} · ${p.series ? `${p.count} editions` : `${p.images.length} works`}`);
 const section = (title, note, tiles) =>
   `<section class="shelf"><header><h2>${title}</h2><p>${note}</p></header><div class="tiles">${tiles.join('')}</div></section>`;

@@ -7,6 +7,8 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 const ADDRESS = 'tz1efwnKoty6omAwtUTN8ui2TJniNDcrHgSB';
 const PER_SERIES = 36; // outputs shown per generative series, spread evenly across the edition
 const THUMB = 800; // px, long edge
+const COVER = { 'Shine On': 25, 'Practical Instruments': 77 }; // edition used as the index tile
+const EXCLUDE = { 'Practical Instruments': [1] }; // editions never shown
 
 const Q = (offset) => `{ token(where:{creators:{creator_address:{_eq:"${ADDRESS}"}}}, order_by:{timestamp:asc}, limit:500, offset:${offset}) {
   fa_contract token_id name timestamp mime display_uri artifact_uri description fa { name } } }`;
@@ -34,7 +36,7 @@ function group(t) {
   if (n.startsWith('cartography')) return 'Cartography';
   if (fa.startsWith('Art  from the year 2024')) return '2024';
   if (d >= '2022-07-28' && d <= '2022-08-31') return 'Summer 2022';
-  return 'Early Works';
+  return 'Other Stuff';
 }
 
 const projects = new Map();
@@ -61,7 +63,13 @@ const pick = (xs, n) => xs.length <= n ? xs : Array.from({ length: n }, (_, i) =
 const jobs = [], out = [];
 for (const p of projects.values()) {
   mkdirSync(`${p.slug}/img`, { recursive: true });
-  const images = pick(p.tokens, p.series ? PER_SERIES : Infinity).map((t) => {
+  const ed = (t) => +(t.name.match(/#(\d+)$/) || [])[1];
+  const pool = p.tokens.filter((t) => !(EXCLUDE[p.title] || []).includes(ed(t)));
+  const picked = pick(pool, p.series ? PER_SERIES : Infinity);
+  const cover = pool.find((t) => ed(t) === COVER[p.title]);
+  if (cover && !picked.includes(cover)) picked.splice(picked.findIndex((t) => ed(t) > ed(cover)) >>> 0, 0, cover);
+  if (cover) p.cover = `img/${cover.token_id}.jpg`;
+  const images = picked.map((t) => {
     const img = { f: `img/${t.token_id}.jpg`, name: t.name, full: cdn(t), url: `https://objkt.com/tokens/${t.fa_contract}/${t.token_id}` };
     jobs.push([img, `${p.slug}/${img.f}`]);
     return img;
